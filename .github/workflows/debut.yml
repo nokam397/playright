@@ -13,46 +13,46 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Récupération du repository
-      - name: Checkout repository
+      # 1. Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      # 2️⃣ Installation de Node.js
+      # 2. Setup Node
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # 3️⃣ Installation des dépendances
+      # 3. Install dependencies + browsers
       - name: Install dependencies
         run: |
           npm ci
           npx playwright install --with-deps
 
-      # 4️⃣ Installation automatique de Allure (méthode officielle)
-      - name: Install Allure
-        uses: andrcuns/setup-allure@v1
-
-      # 5️⃣ Lancer les tests par tag
-      - name: Run Playwright tagged tests
+      # 4. Run Playwright tests with tag
+      - name: Run tagged Playwright tests
         run: |
-          echo "▶️ Running tests with tag: ${{ github.event.inputs.tag }}"
+          echo "▶️ Tests avec le tag '${{ github.event.inputs.tag }}'"
           npx playwright test --grep "${{ github.event.inputs.tag }}"
 
-      # 6️⃣ Génération du rapport Allure
-      - name: Generate Allure report
+      # 5. Generate Allure report
+      - name: Generate Allure Report
+        uses: simple-elf/allure-report-action@v1
         if: always()
-        run: |
-          allure generate playwright-report --clean -o allure-report
+        with:
+          allure_results: allure-results
+          allure_report: allure-report
+          keep_reports: 5
 
-      # 7️⃣ Upload artefacts Allure + Playwright
-      - name: Upload Allure report
+      # 6. Upload Allure report
+      - name: Upload Allure Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
           path: allure-report
 
+      # 7. Upload Playwright report
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
