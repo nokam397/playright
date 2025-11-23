@@ -1,0 +1,23 @@
+{
+  "name": "test_entretien",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:allure": "rm -rf allure-results && playwright test --reporter=line,allure-playwright",
+    "allure:serve": "allure serve ./allure-results",
+    "test:cucumber": "cucumber-js --require step_definitions/**/*.js --require world.js features/**/*.feature"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@cucumber/cucumber": "^12.2.0",
+    "@playwright/test": "^1.56.1",
+    "allure-commandline": "^2.34.1",
+    "allure-playwright": "^3.4.2",
+    "ts-node": "^10.9.2"
+  }
+}
