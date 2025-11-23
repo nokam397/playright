@@ -1,0 +1,78 @@
+name: Playwright Tests (Tagged)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag Playwright à exécuter (ex: @smoke)"
+        required: true
+        default: "@smoke"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # -------------------------------------
+      # 1️⃣ Checkout du repo
+      # -------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # -------------------------------------
+      # 2️⃣ Installation de Node.js
+      # -------------------------------------
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # -------------------------------------
+      # 3️⃣ Installation des dépendances
+      # -------------------------------------
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps
+
+      # -------------------------------------
+      # 4️⃣ Installation de Allure
+      # -------------------------------------
+      - name: Install Allure
+        run: |
+          sudo apt update
+          sudo apt install -y allure
+
+      # -------------------------------------
+      # 5️⃣ Exécution des tests Playwright avec le tag fourni
+      # -------------------------------------
+      - name: Run tagged Playwright tests
+        run: |
+          echo "▶️ Exécution des tests avec le tag '${{ github.event.inputs.tag }}'"
+          npx playwright test --grep "${{ github.event.inputs.tag }}"
+
+      # -------------------------------------
+      # 6️⃣ Génération du rapport Allure
+      # -------------------------------------
+      - name: Generate Allure report
+        if: always()
+        run: |
+          allure generate playwright-report --clean -o allure-report
+
+      # -------------------------------------
+      # 7️⃣ Upload des rapports en artefacts
+      # -------------------------------------
+      - name: Upload Allure report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+
